@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 
 
-class KMeans():
+class KMeans:
     def __init__(self, k=10, r=100, debug=False):
         self.k = k
         self.r = r
