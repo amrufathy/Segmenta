@@ -1,40 +1,47 @@
-import datetime
-import os
 import random
-import string
 
 import numpy as np
 from PIL import Image
 
 
-class kmeans():
-    def __init__(self, filepath, k=10, r=100, outdir=None):
-        self.now = ''.join(c for c in str(datetime.datetime.today())
-                           if c in string.digits)[:12]
+class KMeans():
+    def __init__(self, k=10, r=100, debug=False):
+        self.k = k
+        self.r = r
 
-        self.outdir = os.path.expanduser(outdir) if outdir else outdir
-        self.basename = os.path.splitext(os.path.basename(filepath))[0]
+        self.pixels = None
+        self.features = None
+        self.debug = debug
 
+    def fit(self, filepath):
+        """
+        Extracts features from image ([locality,] color) and
+            fits kmeans on them.
+        """
         img = Image.open(filepath)
-        # img.show()
         self.pixels = np.array(img)
         m, n, cols = self.pixels.shape
+        if self.debug: print('Read image: m = {}, n = {}, pixel: {}'.format(m, n, cols))
 
+        if self.debug: print('Extracting features...')
         idx_lst = [(j, k) for j in range(m) for k in range(n)]
         idx_arr = np.array(idx_lst).reshape((m, n, 2))
         # 2D array (m, n, r, g, b)
         self.features = np.concatenate((idx_arr, self.pixels), axis=2).ravel().reshape((m * n, 5))
 
+        self._fit()
+
+    def _fit(self):
+        if self.debug: print('Fitting model on training data...')
+
         def calculate_centroids():
-            centroids = random.sample(list(self.features), k)
+            centroids = random.sample(list(self.features), self.k)
             old_centroids = [np.empty_like(centroids[0]) for _ in range(len(centroids))]
 
             num_iter = 0
-            while not np.allclose(old_centroids, centroids, atol=2) and num_iter < r:
-                print(num_iter)
-                print(old_centroids)
-                print(centroids)
-                print(np.isclose(old_centroids, centroids, atol=2))
+            while not np.allclose(old_centroids, centroids, atol=2) and num_iter < self.r:
+                if self.debug: print(np.isclose(old_centroids, centroids, atol=2))
+
                 num_iter += 1
                 old_centroids = centroids.copy()
                 centroids = self.update_centroids(centroids)
@@ -42,11 +49,10 @@ class kmeans():
             return centroids
 
         self.centroids = calculate_centroids()
-        print('calculated centroids')
-        self.generate_image()
+        if self.debug: print('Calculated centroids...')
 
     def update_centroids(self, centroids):
-        d_centroids = {tuple(k): np.zeros([6], dtype=np.float32) for k in centroids}
+        d_centroids = {tuple(k): np.zeros([len(self.features[0]) + 1], dtype=np.float32) for k in centroids}
 
         # iterate on each pixel in the picture
         for arr in self.features:
@@ -57,16 +63,20 @@ class kmeans():
         return [feature_vector[1:] / feature_vector[0] for feature_vector in d_centroids.values()
                 if feature_vector[0] > 0]  # drop empty clusters
 
-    def nearest_centroid(self, pixel, centroids):
-        def euclidean_distance(v1, v2):
-            return np.linalg.norm(v1 - v2)
+    @staticmethod
+    def nearest_centroid(pixel, centroids):
+        def distance(v1, v2, order=2):
+            return np.linalg.norm(v1 - v2, ord=order)
 
-        distances = [(k, euclidean_distance(pixel[2:], k[2:])) for k in centroids]
+        # To cluster on RGB only we pass the last 3 components to the distance functions
+        # To include locality pass the whole vector
+        distances = [(k, distance(pixel[-3:], k[-3:])) for k in centroids]
         best_k, _ = min(distances, key=lambda t: t[1])
 
         return tuple(best_k)
 
     def generate_image(self):
+        if self.debug: print('Generating segmented image')
         new_pixels = np.empty_like(self.pixels, dtype=np.uint8)
 
         d_clusters = self.cluster()
@@ -92,7 +102,10 @@ class kmeans():
         return d_clusters
 
 
-image = '16052.jpg'
+image = '55075.jpg'
 
 if __name__ == '__main__':
-    kmeans('../' + image, k=11)
+    # kmeans('../' + image, k=11)
+    kmeans = KMeans(k=11, debug=True)
+    kmeans.fit('../' + image)
+    kmeans.generate_image()
