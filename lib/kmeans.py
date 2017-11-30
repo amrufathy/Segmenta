@@ -4,108 +4,114 @@ import numpy as np
 from PIL import Image
 
 
+# noinspection SpellCheckingInspection
 class KMeans:
     def __init__(self, k=10, r=100, debug=False):
-        self.k = k
-        self.r = r
+        self.__k = k
+        self.__r = r
 
-        self.pixels = None
-        self.features = None
-        self.debug = debug
+        self.__debug = debug
 
-    def fit(self, filepath):
+    def train(self, filepath):
         """
-        Extracts features from image ([locality,] color) and
+        Extracts features from img ([locality,] color) and
             fits kmeans on them.
         """
-        img = Image.open(filepath)
-        self.pixels = np.array(img)
-        m, n, cols = self.pixels.shape
-        if self.debug: print('Read image: m = {}, n = {}, pixel: {}'.format(m, n, cols))
+        pixels = self.__extract_features(filepath)
+        self.__fit()
 
-        if self.debug: print('Extracting features...')
+        return pixels
+
+    def __extract_features(self, filepath):
+        img = Image.open(filepath)
+        self.__pixels = np.array(img)
+        m, n, cols = self.__pixels.shape
+        if self.__debug: print('Read image: m = {}, n = {}, pixel: {}'.format(m, n, cols))
+
+        if self.__debug: print('Extracting features...')
         idx_lst = [(j, k) for j in range(m) for k in range(n)]
         idx_arr = np.array(idx_lst).reshape((m, n, 2))
-        # 2D array (m, n, r, g, b)
-        self.features = np.concatenate((idx_arr, self.pixels), axis=2).ravel().reshape((m * n, 5))
+        # 2D array (x, y, r, g, b)
+        self.__features = np.concatenate((idx_arr, self.__pixels), axis=2).ravel().reshape((m * n, 5))
 
-        self._fit()
+        return self.__pixels
 
-    def _fit(self):
-        if self.debug: print('Fitting model on training data...')
+    def __fit(self):
+        if self.__debug: print('Fitting model on training data...')
 
         def calculate_centroids():
-            centroids = random.sample(list(self.features), self.k)
+            centroids = random.sample(list(self.__features), self.__k)
             old_centroids = [np.empty_like(centroids[0]) for _ in range(len(centroids))]
 
             num_iter = 0
-            while not np.allclose(old_centroids, centroids, atol=2) and num_iter < self.r:
-                if self.debug: print(np.isclose(old_centroids, centroids, atol=2))
+            while not np.allclose(old_centroids, centroids, atol=2) and num_iter < self.__r:
+                if self.__debug: print(np.isclose(old_centroids, centroids, atol=2))
 
                 num_iter += 1
                 old_centroids = centroids.copy()
-                centroids = self.update_centroids(centroids)
+                centroids = self.__update_centroids(centroids)
 
             return centroids
 
-        self.centroids = calculate_centroids()
-        if self.debug: print('Calculated centroids...')
+        self.__centroids = calculate_centroids()
+        if self.__debug: print('Calculated centroids...')
 
-    def update_centroids(self, centroids):
-        d_centroids = {tuple(k): np.zeros([len(self.features[0]) + 1], dtype=np.float32) for k in centroids}
+    def __update_centroids(self, centroids):
+        assignments = self.__assign_clusters(centroids)
+        new_centroids = []
 
-        # iterate on each pixel in the picture
-        for arr in self.features:
-            d_centroids[self.nearest_centroid(arr, centroids)] += \
-                np.concatenate([[1.0], arr])
+        for k_idx in range(self.__k):
+            cluster = self.__features[assignments == k_idx]
 
-        # calculate average of features
-        return [feature_vector[1:] / feature_vector[0] for feature_vector in d_centroids.values()
-                if feature_vector[0] > 0]  # drop empty clusters
+            if len(cluster) != 0:
+                new_centroids.append(tuple(cluster.mean(axis=0)))
 
-    @staticmethod
-    def nearest_centroid(pixel, centroids):
-        def distance(v1, v2, order=2):
-            return np.linalg.norm(v1 - v2, ord=order)
+        return new_centroids
 
-        # To cluster on RGB only we pass the last 3 components to the distance functions
-        # To include locality pass the whole vector
-        distances = [(k, distance(pixel[-3:], k[-3:])) for k in centroids]
-        best_k, _ = min(distances, key=lambda t: t[1])
-
-        return tuple(best_k)
+    def __assign_clusters(self, centroids):
+        # Use RGB features only when calculating distances
+        # Don't include locality
+        distances = np.abs(self.__features[:, -3:] - np.array(centroids)[:, -3:][:, np.newaxis]).sum(axis=2)
+        return np.argmin(distances, axis=0)
 
     def generate_image(self):
-        if self.debug: print('Generating segmented image')
-        new_pixels = np.empty_like(self.pixels, dtype=np.uint8)
+        if self.__debug: print('Generating segmented image')
+        new_pixels = np.empty_like(self.__pixels, dtype=np.uint8)
 
-        d_clusters = self.cluster()
-        for centroid, pixels in d_clusters.items():
-            for pixel in pixels:
-                x, y, r, g, b = pixel
-                new_pixels[int(x), int(y)] = [int(r), int(g), int(b)]
+        d_clusters = self.__cluster()
+        for pixel in d_clusters:
+            x, y, r, g, b = pixel
+            new_pixels[int(x), int(y)] = [int(r), int(g), int(b)]
 
         new_img = Image.fromarray(new_pixels)
         new_img.show()
-
         new_img.save('../segmented_' + image)
 
-    def cluster(self):
-        d_clusters = {tuple(k): [] for k in self.centroids}
+        return new_pixels
 
-        for feature in self.features:
-            nearest = self.nearest_centroid(feature, self.centroids)
-            rep = tuple(np.concatenate((np.ravel(feature[:2]),
-                                        np.ravel(nearest[2:]))))
-            d_clusters[nearest].append(rep)
+    def __cluster(self):
+        pixels = []
 
-        return d_clusters
+        assignments = self.__assign_clusters(self.__centroids)
+
+        for k_idx in range(self.__k):
+            cluster = self.__features[assignments == k_idx]
+            cluster_mean = cluster.mean(axis=0)
+
+            for feature in cluster:
+                pixels.append(
+                    np.concatenate((
+                        np.ravel(feature[:2]),
+                        np.ravel(cluster_mean[-3:])
+                    ))
+                )
+
+        return pixels
 
 
 image = '55075.jpg'
 
 if __name__ == '__main__':
-    # kmeans('../' + image, k=11)
-    kmeans = KMeans(k=11, debug=True)
-    kmeans.fit('../' + image)
+    kmeans = KMeans(k=11, debug=False)
+    kmeans.train('../' + image)
     kmeans.generate_image()
