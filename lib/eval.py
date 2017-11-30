@@ -7,11 +7,13 @@ from lib.kmeans import KMeans
 
 
 def f1_measure(assignments, ground_truth):
+    assignments, ground_truth = np.ravel(assignments), np.ravel(ground_truth)
     raise NotImplementedError
 
 
 def conditional_entropy(assignments, ground_truth):
     # ref: http://scikit-learn.org/stable/modules/clustering.html#id15
+    assignments, ground_truth = np.ravel(assignments), np.ravel(ground_truth)
     entropy = 0
 
     for cluster in np.unique(assignments):

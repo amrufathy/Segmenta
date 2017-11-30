@@ -70,7 +70,7 @@ class KMeans:
         # Use RGB features only when calculating distances
         # Don't include locality
         # distances = np.abs(self.__features - np.array(centroids)[:, np.newaxis]).sum(axis=2)
-        
+
         distances = np.sqrt(
             np.power(
                 np.abs(self.__features[:, -3:] - np.array(centroids)[:, -3:][:, np.newaxis]), 2)

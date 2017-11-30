@@ -1,6 +1,5 @@
 import os
 
-import numpy as np
 from scipy.io import loadmat
 
 ground_truth_path = os.path.join(
@@ -20,8 +19,8 @@ def load_test_files(img):
 
     for struct in mat_file['groundTruth'][0]:
         yield (
-            np.ravel(struct[0]['Segmentation'][0]),  # return as numpy arrays
-            np.ravel(struct[0]['Boundaries'][0])
+            struct[0]['Segmentation'][0],  # return as numpy arrays
+            struct[0]['Boundaries'][0]
         )
 
 
