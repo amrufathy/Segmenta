@@ -17,10 +17,10 @@ class KMeans:
         Extracts features from img ([locality,] color) and
             fits kmeans on them.
         """
-        pixels = self.__extract_features(filepath)
+        self.__extract_features(filepath)
         self.__fit()
 
-        return pixels
+        return self.__assign_clusters(self.__centroids)
 
     def __extract_features(self, filepath):
         img = Image.open(filepath)
@@ -33,8 +33,6 @@ class KMeans:
         idx_arr = np.array(idx_lst).reshape((m, n, 2))
         # 2D array (x, y, r, g, b)
         self.__features = np.concatenate((idx_arr, self.__pixels), axis=2).ravel().reshape((m * n, 5))
-
-        return self.__pixels
 
     def __fit(self):
         if self.__debug: print('Fitting model on training data...')
@@ -71,7 +69,13 @@ class KMeans:
     def __assign_clusters(self, centroids):
         # Use RGB features only when calculating distances
         # Don't include locality
-        distances = np.abs(self.__features[:, -3:] - np.array(centroids)[:, -3:][:, np.newaxis]).sum(axis=2)
+        # distances = np.abs(self.__features - np.array(centroids)[:, np.newaxis]).sum(axis=2)
+        
+        distances = np.sqrt(
+            np.power(
+                np.abs(self.__features[:, -3:] - np.array(centroids)[:, -3:][:, np.newaxis]), 2)
+        ).sum(axis=2)
+
         return np.argmin(distances, axis=0)
 
     def generate_image(self):
