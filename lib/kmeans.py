@@ -1,7 +1,9 @@
+import os
 import random
 
 import numpy as np
 from PIL import Image
+from cachpy import cachpy
 
 
 # noinspection SpellCheckingInspection
@@ -18,7 +20,7 @@ class KMeans:
             fits kmeans on them.
         """
         self.__extract_features(filepath)
-        self.__fit()
+        self.__fit(filepath)
 
         return self.__assign_clusters(self.__centroids)
 
@@ -34,9 +36,12 @@ class KMeans:
         # 2D array (x, y, r, g, b)
         self.__features = np.concatenate((idx_arr, self.__pixels), axis=2).ravel().reshape((m * n, 5))
 
-    def __fit(self):
+    def __fit(self, filepath):
         if self.__debug: print('Fitting model on training data...')
 
+        filename = os.path.splitext(os.path.basename(filepath))[0]
+
+        @cachpy('.pickles/kmeans_k_' + str(self.__k) + '_image_' + filename + '.pic')
         def calculate_centroids():
             centroids = random.sample(list(self.__features), self.__k)
             old_centroids = [np.empty_like(centroids[0]) for _ in range(len(centroids))]

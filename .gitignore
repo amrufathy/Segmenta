@@ -100,10 +100,10 @@ ENV/
 # mypy
 .mypy_cache/
 
+# JetBrains
 .idea
-.pickles
 
 # Segmenta
 data
-
 *.jpg
+*.pic

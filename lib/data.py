@@ -3,10 +3,10 @@ import os
 from scipy.io import loadmat
 
 ground_truth_path = os.path.join(
-    os.path.split(os.getcwd())[0],
+    os.getcwd(),
     'data',
     'groundTruth',
-    'train'
+    'test'
 )
 
 
