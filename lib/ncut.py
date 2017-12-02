@@ -29,7 +29,6 @@ def normalized_cut(adjacency_matrix, k):
 	for value in range(dominant_eigenvectors.shape[0]):
 		normalized_dominant_eigenvectors[value] = (1.0/np.sqrt(np.sum(np.square(dominant_eigenvectors[value,:]))))*(dominant_eigenvectors[value, :].T)
 	
-	print(normalized_dominant_eigenvectors)
 	# Apply K-means to normalized dominant eigenvectors
 	# k_means = kmeans.KMeans(k=k,debug=False)
 	# k_means.train(normalized_dominant_eigenvectors)

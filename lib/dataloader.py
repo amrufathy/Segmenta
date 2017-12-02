@@ -18,7 +18,7 @@ def load_training(data_directory='../data', image_size=(30,30), image_depth=3):
     for image_name in training_images_names:
         image_gt_file_name = image_name.split('.')[0] + '.mat'
         image_file = Image.open(training_directory + '/' + image_name)
-        resized_image = imresize(image_file,image_size).reshape((image_size[0]*image_size[1],3))
+        resized_image = imresize(image_file,image_size).reshape((image_size[0]*image_size[1],image_depth))
         image_gt = loadmat(training_gt_directory + '/' + image_gt_file_name)
         training_set.append(resized_image)
         training_gt.append(image_gt)
@@ -43,7 +43,7 @@ def load_test(data_directory='../data', image_size=(30,30), image_depth=3):
     for image_name in test_images_names:
         image_gt_file_name = image_name.split('.')[0] + '.mat'
         image_file = Image.open(test_directory + '/' + image_name)
-        resized_image = imresize(image_file,image_size).reshape((image_size[0]*image_size[1],3))
+        resized_image = imresize(image_file,image_size).reshape((image_size[0]*image_size[1],image_depth))
         image_gt = loadmat(test_gt_directory + '/' + image_gt_file_name)
         test_set.append(resized_image)
         test_gt.append(image_gt)
@@ -68,7 +68,7 @@ def load_validation(data_directory='../data', image_size=(30,30), image_depth=3)
     for image_name in validation_images_names:
         image_gt_file_name = image_name.split('.')[0] + '.mat'
         image_file = Image.open(validation_directory + '/' + image_name)
-        resized_image = imresize(image_file,image_size).reshape((image_size[0]*image_size[1],3))
+        resized_image = imresize(image_file,image_size).reshape((image_size[0]*image_size[1],image_depth))
         image_gt = loadmat(validation_gt_directory + '/' + image_gt_file_name)
         validation_set.append(resized_image)
         validation_gt.append(image_gt)
