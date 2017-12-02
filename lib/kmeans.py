@@ -98,10 +98,8 @@ class KMeans:
             new_pixels[int(x), int(y)] = [int(r), int(g), int(b)]
 
         new_img = Image.fromarray(new_pixels)
-        new_img.show()
-        new_img.save('../segmented_' + image)
 
-        return new_pixels
+        return new_img
 
     def __cluster(self):
         pixels = []
