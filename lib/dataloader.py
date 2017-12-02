@@ -42,7 +42,6 @@ def training_paths(data_directory='../data'):
     # Compute paths
     training_directory = data_directory + '/images/train'
     training_gt_directory = data_directory + '/groundTruth/train'
-    training_count = len(os.walk(training_directory).__next__()[2])
     training_images_names = os.listdir(training_directory)
     for image_name in training_images_names:
         image_file_path = training_directory + '/' + image_name
@@ -87,7 +86,6 @@ def test_paths(data_directory='../data'):
     # Compute paths
     test_directory = data_directory + '/images/test'
     test_gt_directory = data_directory + '/groundTruth/test'
-    test_count = len(os.walk(test_directory).__next__()[2])
     test_images_names = os.listdir(test_directory)
     for image_name in test_images_names:
         image_file_path = test_directory + '/' + image_name
@@ -132,7 +130,6 @@ def validation_paths(data_directory='../data'):
     # Compute paths
     validation_directory = data_directory + '/images/val'
     validation_gt_directory = data_directory + '/groundTruth/val'
-    validation_count = len(os.walk(validation_directory).__next__()[2])
     validation_images_names = os.listdir(validation_directory)
     for image_name in validation_images_names:
         image_file_path = validation_directory + '/' + image_name
