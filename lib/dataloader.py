@@ -1,11 +1,10 @@
-from __future__ import print_function
-
 import os
 
 from PIL import Image
 from scipy.io import loadmat
+from scipy.misc import imresize
 
-def load_training(data_directory='../data'):
+def load_training(data_directory='../data', image_size=(50,50), image_depth=3):
     
     # Define lists
     training_set = list()
@@ -19,17 +18,18 @@ def load_training(data_directory='../data'):
     for image_name in training_images_names:
         image_gt_file_name = image_name.split('.')[0] + '.mat'
         image_file = Image.open(training_directory + '/' + image_name)
+        resized_image = imresize(image_file,image_size).reshape((image_size[0]*image_size[1],3))
         image_gt = loadmat(training_gt_directory + '/' + image_gt_file_name)
-        training_set.append(image_file)
+        training_set.append(resized_image)
         training_gt.append(image_gt)
     
     # Print stats
-    print("Loaded training data succesfully.\n\nSet size = ", training_count, "samples.\n")
+    print("Loaded training data succesfully. Set size =", training_count, "samples.")
 
     # Return sets
     return training_set, training_gt
 
-def load_test(data_directory='../data'):
+def load_test(data_directory='../data', image_size=(30,30), image_depth=3):
     
     # Define lists
     test_set = list()
@@ -43,17 +43,18 @@ def load_test(data_directory='../data'):
     for image_name in test_images_names:
         image_gt_file_name = image_name.split('.')[0] + '.mat'
         image_file = Image.open(test_directory + '/' + image_name)
+        resized_image = imresize(image_file,image_size).reshape((image_size[0]*image_size[1],3))
         image_gt = loadmat(test_gt_directory + '/' + image_gt_file_name)
-        test_set.append(image_file)
+        test_set.append(resized_image)
         test_gt.append(image_gt)
     
     # Print stats
-    print("Loaded test set succesfully.\n\nSet size = ", test_count, "samples.\n")
+    print("Loaded test set succesfully. Set size =", test_count, "samples.")
 
     # Return sets
-    return test_data, test_gt
+    return test_set, test_gt
 
-def load_validation(data_directory='../data'):
+def load_validation(data_directory='../data', image_size=(50,50), image_depth=3):
     
     # Define lists
     validation_set = list()
@@ -67,12 +68,13 @@ def load_validation(data_directory='../data'):
     for image_name in validation_images_names:
         image_gt_file_name = image_name.split('.')[0] + '.mat'
         image_file = Image.open(validation_directory + '/' + image_name)
+        resized_image = imresize(image_file,image_size).reshape((image_size[0]*image_size[1],3))
         image_gt = loadmat(validation_gt_directory + '/' + image_gt_file_name)
-        validation_set.append(image_file)
+        validation_set.append(resized_image)
         validation_gt.append(image_gt)
     
     # Print stats
-    print("Loaded validation set succesfully.\n\nSet size = ", validation_count, "samples.\n")
+    print("Loaded validation set succesfully. Set size =", validation_count, "samples.")
 
     # Return sets
     return validation_set, validation_gt
