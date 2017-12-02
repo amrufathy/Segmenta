@@ -76,7 +76,3 @@ def load_validation(data_directory='../data'):
 
     # Return sets
     return validation_set, validation_gt
-
-if __name__ == '__main__':
-    val, val_gt = load_validation()
-    print(len(val), len(val_gt))
