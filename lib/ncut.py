@@ -1,9 +1,10 @@
 import numpy as np
 import scipy as sp
+
 import dataloader
 import kmeans
 import adjacency
-from scipy.misc import imresize
+
 def normalized_cut(adjacency_matrix, k):
 	
 	# Compute the degree matrix (delta)
@@ -17,9 +18,9 @@ def normalized_cut(adjacency_matrix, k):
 	# Compute the eigenvectors and eigenvalues
 	delta_inverse = np.linalg.pinv(degree_matrix)
 	eigen_values, eigen_vectors = sp.sparse.linalg.eigs(np.dot(delta_inverse,laplacian_matrix))
-	sorted_eigen_values = np.argsort(-eigen_values)
 
 	# Fetch the K dominant eigenvectors
+	sorted_eigen_values = np.argsort(-eigen_values)
 	dominant_indicies = sorted_eigen_values[:k]
 	dominant_eigenvectors = eigen_vectors[dominant_indicies].T
 	
@@ -28,6 +29,7 @@ def normalized_cut(adjacency_matrix, k):
 	for value in range(dominant_eigenvectors.shape[0]):
 		normalized_dominant_eigenvectors[value] = (1.0/np.sqrt(np.sum(np.square(dominant_eigenvectors[value,:]))))*(dominant_eigenvectors[value, :].T)
 	
+	print(normalized_dominant_eigenvectors)
 	# Apply K-means to normalized dominant eigenvectors
 	# k_means = kmeans.KMeans(k=k,debug=False)
 	# k_means.train(normalized_dominant_eigenvectors)
