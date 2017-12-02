@@ -28,8 +28,10 @@ abs_files_path = sorted(map(
     os.listdir(DATA_DIR)
 ))
 
+mode = 'xyrgb'
+
 for k in [3, 5, 7, 9, 11]:
-    kmeans = KMeans(k=k)
+    kmeans = KMeans(k=k, mode=mode)
     print(k)
 
     for idx, img_file in enumerate(abs_files_path):

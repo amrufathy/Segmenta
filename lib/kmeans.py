@@ -8,9 +8,10 @@ from cachpy import cachpy
 
 # noinspection SpellCheckingInspection
 class KMeans:
-    def __init__(self, k=10, r=100, debug=False):
+    def __init__(self, k=10, r=100, mode='rgb', debug=False):
         self.__k = k
         self.__r = r
+        self.__mode = mode
 
         self.__debug = debug
 
@@ -41,7 +42,7 @@ class KMeans:
 
         filename = os.path.splitext(os.path.basename(filepath))[0]
 
-        @cachpy('.pickles/kmeans_k_' + str(self.__k) + '_image_' + filename + '.pic')
+        @cachpy('.pickles/kmeans_k_' + str(self.__k) + '_mode_' + str(self.__mode) + '_image_' + filename + '.pic')
         def calculate_centroids():
             centroids = random.sample(list(self.__features), self.__k)
             old_centroids = [np.empty_like(centroids[0]) for _ in range(len(centroids))]
@@ -72,14 +73,18 @@ class KMeans:
         return new_centroids
 
     def __assign_clusters(self, centroids):
-        # Use RGB features only when calculating distances
-        # Don't include locality
-        # distances = np.abs(self.__features - np.array(centroids)[:, np.newaxis]).sum(axis=2)
-
-        distances = np.sqrt(
-            np.power(
-                np.abs(self.__features[:, -3:] - np.array(centroids)[:, -3:][:, np.newaxis]), 2)
-        ).sum(axis=2)
+        if self.__mode == 'rgb':
+            # Use RGB features only when calculating distances
+            # Don't include locality
+            distances = np.sqrt(
+                np.power(
+                    np.abs(self.__features[:, -3:] - np.array(centroids)[:, -3:][:, np.newaxis]), 2)
+            ).sum(axis=2)
+        else:
+            distances = np.sqrt(
+                np.power(
+                    np.abs(self.__features - np.array(centroids)[:, np.newaxis]), 2)
+            ).sum(axis=2)
 
         return np.argmin(distances, axis=0)
 
