@@ -2,15 +2,17 @@ from collections import Counter
 
 import numpy as np
 
-from lib.data import load_test_files
+from lib.data import load_segmentations
 from lib.kmeans import KMeans
 
 
+# noinspection PyShadowingNames
 def f1_measure(assignments, ground_truth):
     assignments, ground_truth = np.ravel(assignments), np.ravel(ground_truth)
     raise NotImplementedError
 
 
+# noinspection PyShadowingNames,SpellCheckingInspection
 def conditional_entropy(assignments, ground_truth):
     # ref: http://scikit-learn.org/stable/modules/clustering.html#id15
     assignments, ground_truth = np.ravel(assignments), np.ravel(ground_truth)
@@ -41,5 +43,5 @@ if __name__ == '__main__':
     kmeans = KMeans(k=11, debug=False)
     assignments = kmeans.train('../' + image)
 
-    for segmentation, boundaries in load_test_files(image):
+    for segmentation, boundaries in load_segmentations(image):
         print(conditional_entropy(assignments, segmentation))

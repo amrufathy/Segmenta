@@ -1,10 +1,12 @@
-import os
-import numpy as np
-from lib.kmeans import KMeans
-from lib.eval import conditional_entropy
-from lib.data import load_test_files
 import logging.handlers
+import os
 from time import strftime
+
+import numpy as np
+
+from lib.data import load_segmentations
+from lib.eval import conditional_entropy
+from lib.kmeans import KMeans
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -37,7 +39,7 @@ for k in [3, 5, 7, 9, 11]:
 
         entropies = []
 
-        for _idx, _val in enumerate(load_test_files(img_file)):
+        for _idx, _val in enumerate(load_segmentations(img_file)):
             segmentation, boundaries = _val
             c_e = conditional_entropy(assignments, segmentation)
             entropies.append(c_e)
