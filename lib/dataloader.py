@@ -33,6 +33,25 @@ def load_training(data_directory='../data', image_size=default_dimensions, image
     # Return sets
     return training_set, training_gt
 
+def training_paths(data_directory='../data'):
+    
+    # Define lists
+    training_set_paths = list()
+    training_gt_paths = list()
+
+    # Compute paths
+    training_directory = data_directory + '/images/train'
+    training_gt_directory = data_directory + '/groundTruth/train'
+    training_images_names = os.listdir(training_directory)
+    for image_name in training_images_names:
+        image_file_path = training_directory + '/' + image_name
+        image_gt_file_path = training_directory + '/' + image_name.split('.')[0] + '.mat'
+        training_set_paths.append(image_file_path)
+        training_gt_paths.append(image_gt_file_path)
+
+    # Return sets
+    return training_set_paths, training_gt_paths
+
 def load_test(data_directory='../data', image_size=default_dimensions, image_depth=default_depth):
     
     # Define lists
@@ -58,6 +77,25 @@ def load_test(data_directory='../data', image_size=default_dimensions, image_dep
     # Return sets
     return test_set, test_gt
 
+def test_paths(data_directory='../data'):
+    
+    # Define lists
+    test_set_paths = list()
+    test_gt_paths = list()
+
+    # Compute paths
+    test_directory = data_directory + '/images/test'
+    test_gt_directory = data_directory + '/groundTruth/test'
+    test_images_names = os.listdir(test_directory)
+    for image_name in test_images_names:
+        image_file_path = test_directory + '/' + image_name
+        image_gt_file_path = test_directory + '/' + image_name.split('.')[0] + '.mat'
+        test_set_paths.append(image_file_path)
+        test_gt_paths.append(image_gt_file_path)
+
+    # Return sets
+    return test_set_paths, test_gt_paths
+
 def load_validation(data_directory='../data', image_size=default_dimensions, image_depth=default_depth):
     
     # Define lists
@@ -82,3 +120,22 @@ def load_validation(data_directory='../data', image_size=default_dimensions, ima
 
     # Return sets
     return validation_set, validation_gt
+
+def validation_paths(data_directory='../data'):
+    
+    # Define lists
+    validation_set_paths = list()
+    validation_gt_paths = list()
+
+    # Compute paths
+    validation_directory = data_directory + '/images/val'
+    validation_gt_directory = data_directory + '/groundTruth/val'
+    validation_images_names = os.listdir(validation_directory)
+    for image_name in validation_images_names:
+        image_file_path = validation_directory + '/' + image_name
+        image_gt_file_path = validation_directory + '/' + image_name.split('.')[0] + '.mat'
+        validation_set_paths.append(image_file_path)
+        validation_gt_paths.append(image_gt_file_path)
+
+    # Return sets
+    return validation_set_paths, validation_gt_paths
