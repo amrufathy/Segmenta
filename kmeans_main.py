@@ -5,7 +5,7 @@ from time import strftime
 import numpy as np
 
 from lib.data import load_segmentations
-from lib.eval import conditional_entropy
+from lib.eval import f1_score, conditional_entropy
 from lib.kmeans import KMeans
 
 logger = logging.getLogger(__name__)
@@ -39,16 +39,21 @@ for k in [3, 5, 7, 9, 11]:
 
         img_file = os.path.splitext(os.path.basename(img_file))[0]
 
-        entropies = []
+        entropies, f1_scores = [], []
 
         for _idx, _val in enumerate(load_segmentations(img_file)):
             segmentation, boundaries = _val
             c_e = conditional_entropy(assignments, segmentation)
             entropies.append(c_e)
-            logger.info(
-                'k = {}, img = {}, segmentation #{}, conditional_entropy = {:.3f}'.format(k, img_file, _idx + 1, c_e))
 
-        logger.info('k = {}, img = {}, average_conditional_entropy = {:.3f}'.format(k, img_file, np.mean(entropies)))
+            f1 = f1_score(assignments, segmentation)
+            f1_scores.append(f1)
+
+            # logger.info('k = {}, img = {}, segmentation #{}, conditional_entropy = {:.3f}'.format(k, img_file, _idx + 1, c_e))
+            logger.info('k = {}, img = {}, segmentation #{}, f1 score = {:.3f}'.format(k, img_file, _idx + 1, f1))
+
+        # logger.info('k = {}, img = {}, average_conditional_entropy = {:.3f}'.format(k, img_file, np.mean(entropies)))
+        logger.info('k = {}, img = {}, average_f1_scores = {:.3f}'.format(k, img_file, np.mean(f1_scores)))
         logger.info('=' * 100)
 
     logger.info('=' * 100)

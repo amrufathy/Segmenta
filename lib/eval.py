@@ -7,9 +7,28 @@ from lib.kmeans import KMeans
 
 
 # noinspection PyShadowingNames
-def f1_measure(assignments, ground_truth):
+def f1_score(assignments, ground_truth):
     assignments, ground_truth = np.ravel(assignments), np.ravel(ground_truth)
-    raise NotImplementedError
+    f_measures = []
+
+    ground_truth_counter = Counter(ground_truth)
+
+    for cluster in np.unique(assignments):
+        # n_c,k samples from class c assigned to cluster k
+        cluster_elements = ground_truth[np.where(assignments == cluster)]
+        # count of n_c,k
+        elements_counter = Counter(cluster_elements)
+
+        max_vote = elements_counter.most_common(1)[0]
+
+        purity = max_vote[1] / np.size(cluster_elements)
+        recall = max_vote[1] / ground_truth_counter[max_vote[0]]
+
+        f_measures.append(
+            2 * purity * recall / (purity + recall)
+        )
+
+    return np.mean(f_measures)
 
 
 # noinspection PyShadowingNames,SpellCheckingInspection
@@ -19,8 +38,9 @@ def conditional_entropy(assignments, ground_truth):
     entropy = 0
 
     for cluster in np.unique(assignments):
-        # n_c,k number of samples from class c assigned to cluster k
+        # n_c,k samples from class c assigned to cluster k
         cluster_elements = ground_truth[np.where(assignments == cluster)]
+        # count of n_c,k
         elements_counter = Counter(cluster_elements)
 
         cluster_entropy = 0
