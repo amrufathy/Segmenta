@@ -50,9 +50,9 @@ if __name__ == '__main__':
     # Apply normalized cut using KNN and RBF kernels
     
     knn_adjacency = adjacency.knn(image, n_neighbours = 5)
-    clustering = normalized_cut(adjacency_matrix = knn_adjacency, k = 5)
-    show_clustering(clustering)
+    clustered_assignments = normalized_cut(adjacency_matrix = knn_adjacency, k = 3)
+    show_clustering(clustered_assignments)
 
     #rbf_adjacency = adjacency.rbf(image, gamma = 1)
-    #clustering = normalized_cut(adjacency_matrix = rbf_adjacency, k = 11)
-    #show_clustering(clustering,mode='matrix'
+    #clustered_assignments = normalized_cut(adjacency_matrix = rbf_adjacency, k = 11)
+    #show_clustering(clustering)
