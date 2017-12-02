@@ -10,7 +10,7 @@ import adjacency
 
 def normalized_cut(adjacency_matrix, k):
 	
-	# Compute the degree matrix (delta)
+	# Compute the laplacian matrix
 	laplacian_matrix = laplacian(adjacency_matrix)
 
 	# Compute the eigenvectors and eigenvalues
@@ -46,13 +46,14 @@ if __name__ == '__main__':
 
     # Fetch a single image and its ground truth
     image = data[0] # Image
+    image_gt = data_gt[0] # Ground truth
 
-    # Apply normalized cut using KNN and RBF kernels
-    
+    # Apply normalized cut using KNN
     knn_adjacency = adjacency.knn(image, n_neighbours = 5)
-    clustered_assignments = normalized_cut(adjacency_matrix = knn_adjacency, k = 3)
+    clustered_assignments = normalized_cut(adjacency_matrix = knn_adjacency, k = 11)
     show_clustering(clustered_assignments)
-
+    
+    # Apply normalized cut using RBF
     #rbf_adjacency = adjacency.rbf(image, gamma = 1)
     #clustered_assignments = normalized_cut(adjacency_matrix = rbf_adjacency, k = 11)
     #show_clustering(clustering)
