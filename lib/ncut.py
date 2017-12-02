@@ -4,11 +4,7 @@ from sklearn.cluster import KMeans
 from scipy.sparse.csgraph import laplacian
 from scipy.misc import imshow as show_image
 
-import dataloader
-import kmeans
-import adjacency
-
-def normalized_cut(adjacency_matrix, k):
+def NCut(adjacency_matrix, k):
 	
 	# Compute the laplacian matrix
 	laplacian_matrix = laplacian(adjacency_matrix)
@@ -50,10 +46,10 @@ if __name__ == '__main__':
 
     # Apply normalized cut using KNN
     knn_adjacency = adjacency.knn(image, n_neighbours = 5)
-    clustered_assignments = normalized_cut(adjacency_matrix = knn_adjacency, k = 11)
+    clustered_assignments = NCut(adjacency_matrix = knn_adjacency, k = 11)
     show_clustering(clustered_assignments)
     
     # Apply normalized cut using RBF
     #rbf_adjacency = adjacency.rbf(image, gamma = 1)
-    #clustered_assignments = normalized_cut(adjacency_matrix = rbf_adjacency, k = 11)
+    #clustered_assignments = NCut(adjacency_matrix = rbf_adjacency, k = 11)
     #show_clustering(clustering)
