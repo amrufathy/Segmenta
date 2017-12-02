@@ -1,5 +1,8 @@
 import numpy as np
-import scipy as sp
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from scipy.sparse.csgraph import laplacian
+from scipy.misc import imshow as show_image
 
 import dataloader
 import kmeans
@@ -17,33 +20,47 @@ def normalized_cut(adjacency_matrix, k):
 	
 	# Compute the eigenvectors and eigenvalues
 	delta_inverse = np.linalg.pinv(degree_matrix)
-	eigen_values, eigen_vectors = sp.sparse.linalg.eigs(np.dot(delta_inverse,laplacian_matrix))
 
-	# Fetch the K dominant eigenvectors
-	sorted_eigen_values = np.argsort(-eigen_values)
-	dominant_indicies = sorted_eigen_values[:k]
-	dominant_eigenvectors = eigen_vectors[dominant_indicies].T
+	# Compute the eigenvectors and eigenvalues
+	eigen_values, eigen_vectors = np.linalg.eigh(np.dot(delta_inverse,laplacian_matrix))
+
+	# Fetch the K least eigenvectors
+	least_eigenvectors = eigen_vectors.T[:,:k]
+
+	# Normalize eigenvectors
+	normalized_eigenvectors = np.divide(least_eigenvectors,np.linalg.norm(least_eigenvectors))
 	
-	# Normalize dominant eigenvectors
-	normalized_dominant_eigenvectors = np.zeros([dominant_eigenvectors.shape[0], k],dtype=complex)
-	for value in range(dominant_eigenvectors.shape[0]):
-		normalized_dominant_eigenvectors[value] = (1.0/np.sqrt(np.sum(np.square(dominant_eigenvectors[value,:]))))*(dominant_eigenvectors[value, :].T)
+	# Apply K-means to normalized eigenvectors
+	k_means = KMeans(n_clusters = k)
+	clustered_assignments = k_means.fit_predict(normalized_eigenvectors)
 	
-	# Apply K-means to normalized dominant eigenvectors
-	# k_means = kmeans.KMeans(k=k,debug=False)
-	# k_means.train(normalized_dominant_eigenvectors)
-	# k_means.generate_image()
+	# Return assignments
+	return clustered_assignments
+
+def show_clustering(clustered_assignments, mode='matrix'):
 	
+	dimension = int(np.sqrt(clustered_assignments.shape[0]))
+	
+	if mode=='matrix':
+		plt.matshow(clustered_assignments.reshape(((dimension,dimension))))
+		plt.show()
+	elif mode=='image':
+		show_image(clustered_assignments.reshape(((dimension,dimension))))
+
 if __name__ == '__main__':
 
     # Load data
     data, data_gt = dataloader.load_test()
 
-    # Fetch a single image
-    image = data[0]
+    # Fetch a single image and its ground truth
+    image = data[0] # Image
 
     # Apply normalized cut using KNN and RBF kernels
-    rbf_adjacency = adjacency.rbf(image, gamma=1)
-    normalized_cut(adjacency_matrix = rbf_adjacency, k = 5)
-    knn_adjacency = adjacency.knn(image, n_neighbours=5)
-    normalized_cut(adjacency_matrix = knn_adjacency, k = 5)
+    
+    knn_adjacency = adjacency.knn(image, n_neighbours = 5)
+    clustering = normalized_cut(adjacency_matrix = knn_adjacency, k = 11)
+    show_clustering(clustering)
+
+    #rbf_adjacency = adjacency.rbf(image, gamma = 1)
+    #clustering = normalized_cut(adjacency_matrix = rbf_adjacency, k = 11)
+    #show_clustering(clustering,mode='matrix'

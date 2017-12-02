@@ -4,7 +4,11 @@ from PIL import Image
 from scipy.io import loadmat
 from scipy.misc import imresize
 
-def load_training(data_directory='../data', image_size=(30,30), image_depth=3):
+# Default dimenstions
+default_dimensions = (100,100)
+default_depth = 3
+
+def load_training(data_directory='../data', image_size=default_dimensions, image_depth=default_depth):
     
     # Define lists
     training_set = list()
@@ -29,7 +33,7 @@ def load_training(data_directory='../data', image_size=(30,30), image_depth=3):
     # Return sets
     return training_set, training_gt
 
-def load_test(data_directory='../data', image_size=(30,30), image_depth=3):
+def load_test(data_directory='../data', image_size=default_dimensions, image_depth=default_depth):
     
     # Define lists
     test_set = list()
@@ -43,7 +47,7 @@ def load_test(data_directory='../data', image_size=(30,30), image_depth=3):
     for image_name in test_images_names:
         image_gt_file_name = image_name.split('.')[0] + '.mat'
         image_file = Image.open(test_directory + '/' + image_name)
-        resized_image = imresize(image_file,image_size).reshape((image_size[0]*image_size[1],image_depth))
+        resized_image = imresize(image_file,image_size).reshape((image_size[0]*image_size[1]),image_depth)
         image_gt = loadmat(test_gt_directory + '/' + image_gt_file_name)
         test_set.append(resized_image)
         test_gt.append(image_gt)
@@ -54,7 +58,7 @@ def load_test(data_directory='../data', image_size=(30,30), image_depth=3):
     # Return sets
     return test_set, test_gt
 
-def load_validation(data_directory='../data', image_size=(30,30), image_depth=3):
+def load_validation(data_directory='../data', image_size=default_dimensions, image_depth=default_depth):
     
     # Define lists
     validation_set = list()
