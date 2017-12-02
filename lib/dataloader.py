@@ -5,7 +5,7 @@ from scipy.io import loadmat
 from scipy.misc import imresize
 
 # Default dimenstions
-default_dimensions = (100,100)
+default_dimensions = (50,50)
 default_depth = 3
 
 def load_training(data_directory='../data', image_size=default_dimensions, image_depth=default_depth):

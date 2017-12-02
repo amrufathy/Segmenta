@@ -11,18 +11,10 @@ import adjacency
 def normalized_cut(adjacency_matrix, k):
 	
 	# Compute the degree matrix (delta)
-	degree_matrix = np.zeros((adjacency_matrix.shape[0],adjacency_matrix.shape[0]))
-	for row in range(adjacency_matrix.shape[0]):
-		degree_matrix[row,row] = np.sum(adjacency_matrix[row,:])
-	
-	# Compute the laplacian matrix
-	laplacian_matrix = degree_matrix - adjacency_matrix
-	
-	# Compute the eigenvectors and eigenvalues
-	delta_inverse = np.linalg.pinv(degree_matrix)
+	laplacian_matrix = laplacian(adjacency_matrix)
 
 	# Compute the eigenvectors and eigenvalues
-	eigen_values, eigen_vectors = np.linalg.eigh(np.dot(delta_inverse,laplacian_matrix))
+	eigen_values, eigen_vectors = np.linalg.eigh(laplacian_matrix)
 
 	# Fetch the K least eigenvectors
 	least_eigenvectors = eigen_vectors.T[:,:k]
@@ -58,7 +50,7 @@ if __name__ == '__main__':
     # Apply normalized cut using KNN and RBF kernels
     
     knn_adjacency = adjacency.knn(image, n_neighbours = 5)
-    clustering = normalized_cut(adjacency_matrix = knn_adjacency, k = 11)
+    clustering = normalized_cut(adjacency_matrix = knn_adjacency, k = 5)
     show_clustering(clustering)
 
     #rbf_adjacency = adjacency.rbf(image, gamma = 1)
