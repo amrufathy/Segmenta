@@ -4,7 +4,7 @@ from PIL import Image
 from scipy.io import loadmat
 from scipy.misc import imresize
 
-def load_training(data_directory='../data', image_size=(50,50), image_depth=3):
+def load_training(data_directory='../data', image_size=(30,30), image_depth=3):
     
     # Define lists
     training_set = list()
@@ -54,7 +54,7 @@ def load_test(data_directory='../data', image_size=(30,30), image_depth=3):
     # Return sets
     return test_set, test_gt
 
-def load_validation(data_directory='../data', image_size=(50,50), image_depth=3):
+def load_validation(data_directory='../data', image_size=(30,30), image_depth=3):
     
     # Define lists
     validation_set = list()
