@@ -1,8 +1,10 @@
 from lib.dataloader import load_test,test_paths
 from lib.kmeans import KMeans
-from lib.adjacency import knn
-from lib.ncut import NCut
-
+from lib.adjacency import knn, rbf
+from lib.ncut import NCut, clustering
+import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
 
 if __name__ == '__main__':
 
@@ -23,7 +25,9 @@ if __name__ == '__main__':
 	kmeans = KMeans(k=5)
 	assignments = []
 	for index, image_path in enumerate(kmeans_set_paths):
+		image_name = image_path.split('/')[-1]
 		assignment = kmeans.train(image_path)
+		kmeans.generate_image().save('output/kmeans/'+image_name)
 		assignments.append(assignment)
 		print('Image #{} processed.\nAssignemnts: {}'.format(index+1,assignment))
 	
@@ -38,13 +42,21 @@ if __name__ == '__main__':
 	ncut_set = test_set[:n_images]
 
 	# Apply NCut | 5-NN and K=5
-	assignments = []
 	for index, image in enumerate(ncut_set):
 		
+		# Get image name
+		image_name = test_paths[index].split('/')[-1]
+
 		# Compute 5-NN matrix
-		adjacency_matrix = knn(image, n_neighbours=5)
-		
-		# Apply NCut
+		adjacency_matrix = knn(image,5)
+		# Apply NCut on KNN
 		assignment = NCut(adjacency_matrix,k=5)
-		assignments.append(assignment)
-		print('Image #{} processed.\nAssignemnts: {}'.format(index+1,assignment))
+		clustering(assignment,mode='get_image').savefig('output/ncut/knn/'+image_name)
+		print('Image #{} processed using KNN.\n'.format(index+1))
+
+		# Compute RBF matrix
+		adjacency_matrix = rbf(image, gamma=10)
+		# Apply NCut on RBF
+		assignment = NCut(adjacency_matrix,k=5)
+		clustering(assignment,mode='get_image').savefig('output/ncut/rbf/'+image_name)
+		print('Image #{} processed using RBF.\n'.format(index+1))
